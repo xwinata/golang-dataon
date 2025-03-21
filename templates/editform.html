@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Employee</title>
+    <script>
+        const urlParts = window.location.pathname.split("/");
+        const id = urlParts[urlParts.length - 1];
+
+        const employeeName = fetch(`/hierarchy/${id}`)
+            .then(response => response.json())
+            .then(data => document.getElementById("h2").textContent = `Edit Employee ${data.Value}`)
+            .catch(error => console.error("Error fetching data:", error));
+
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const value = document.getElementById("value").value;
+            const upline = parseInt(document.getElementById("upline").value);
+
+            const response = await fetch(`/hierarchy/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ value, upline })
+            });
+
+            const result = await response.json();
+            alert(JSON.stringify(result));
+        }
+    </script>
+</head>
+<body>
+	<h2 id="h2">Edit Employee</h2>
+	{{if .Error}}<p style="color: red;">{{.Error}}</p>{{end}}
+	<form onsubmit="submitForm(event)">
+		<label for="value">Value (required):</label>
+		<input type="text" id="value" name="value" value="{{.Value}}" required>
+		<br>
+		<label for="upline">Upline:</label>
+		<input type="text" id="upline" name="upline" value="{{.Upline}}">
+		<br>
+		<button type="submit">Submit</button>
+		<button type="button" onclick="location.href=location.href+'/delete';">Delete</button>
+	</form>
+</body>
+</html>

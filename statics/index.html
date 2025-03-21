@@ -4,18 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indented Tree View</title>
-    <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .node {
-            cursor: pointer;
-            padding: 5px;
-        }
-        .indent {
+        .tree-node {
+            display: flex;
+            align-items: center;
             margin-left: 20px;
+        }
+        .arrow {
+            cursor: pointer;
+            margin-right: 5px;
+            user-select: none;
+            width: 14px;
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+        .name-link {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+        .name-link:hover {
+            text-decoration: underline;
+            color: blue;
         }
     </style>
 </head>
@@ -24,31 +40,29 @@
     <div id="tree-container"></div>
 
     <script>
+        let trees = [];
+
         fetch("/hierarchy")
             .then(response => response.json())
             .then(data => {
-                const root = buildTree(data);
-                initializeCollapse(root); // Collapse initially
-                renderTree(root);
+                trees = buildTrees(data);
+                renderTrees();
             })
             .catch(error => console.error("Error fetching data:", error));
 
-        function buildTree(data) {
+        function buildTrees(data) {
             let nodeMap = new Map();
+            let rootNodes = [];
 
-            // Initialize nodes
             data.forEach(node => {
                 node.children = [];
-                node.expanded = false; // Start collapsed
+                node.expanded = false;
                 nodeMap.set(node.ID, node);
             });
 
-            let root = null;
-
-            // Build hierarchy
             data.forEach(node => {
                 if (node.Upline === null) {
-                    root = node;
+                    rootNodes.push(node);
                 } else {
                     let parent = nodeMap.get(node.Upline);
                     if (parent) {
@@ -57,35 +71,50 @@
                 }
             });
 
-            return root;
+            return rootNodes;
         }
 
-        function initializeCollapse(node) {
+        function renderTrees() {
+            const container = document.getElementById("tree-container");
+            container.innerHTML = "";
+
+            trees.forEach(root => renderTree(root, container, 0));
+        }
+
+        function renderTree(node, container, level) {
+            const div = document.createElement("div");
+            div.classList.add("tree-node");
+            div.style.marginLeft = `${level * 20}px`;
+
+            const arrow = document.createElement("span");
+            arrow.textContent = node.children.length > 0 ? (node.expanded ? "▼" : "▶") : " ";
+            arrow.classList.add("arrow");
             if (node.children.length > 0) {
-                node.children.forEach(initializeCollapse);
+                arrow.addEventListener("click", () => toggleChildren(node, arrow));
+            }
+
+            const nameLink = document.createElement("a");
+            nameLink.href = `/form/${node.ID}`;
+            nameLink.textContent = node.Value;
+            nameLink.classList.add("name-link");
+
+            div.appendChild(arrow);
+            div.appendChild(nameLink);
+            container.appendChild(div);
+
+            if (node.expanded) {
+                const childrenContainer = document.createElement("div");
+                childrenContainer.id = `children-${node.ID}`;
+                container.appendChild(childrenContainer);
+
+                node.children.forEach(child => renderTree(child, childrenContainer, level + 1));
             }
         }
 
-        function renderTree(root) {
-            const container = d3.select("#tree-container");
-            container.html(""); // Clear previous content
-
-            function renderNode(node, depth = 0) {
-                const row = container.append("div")
-                    .attr("class", "node indent")
-                    .style("margin-left", `${depth * 20}px`)
-                    .text(node.expanded ? "▼ " + node.Value : "▶ " + node.Value)
-                    .on("click", function () {
-                        node.expanded = !node.expanded;
-                        renderTree(root);
-                    });
-
-                if (node.expanded) {
-                    node.children.forEach(child => renderNode(child, depth + 1));
-                }
-            }
-
-            renderNode(root);
+        function toggleChildren(node, arrow) {
+            node.expanded = !node.expanded;
+            arrow.textContent = node.expanded ? "▼" : "▶";
+            renderTrees();
         }
     </script>
 </body>

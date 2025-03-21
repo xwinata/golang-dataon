@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Employee</title>
+    <script>
+        const urlParts = window.location.pathname.split("/");
+        const id = urlParts[urlParts.length - 2];
+
+        const employeeName = fetch(`/hierarchy/${id}`)
+            .then(response => response.json())
+            .then(data => document.getElementById("h2").textContent = `Delete Employee ${data.Value}?`)
+            .catch(error => console.error("Error fetching data:", error));
+
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const response = await fetch(`/hierarchy/${id}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+            alert(JSON.stringify(result));
+        }
+    </script>
+</head>
+<body>
+	<h2 id="h2">Delete Employee?</h2>
+	{{if .Error}}<p style="color: red;">{{.Error}}</p>{{end}}
+	<form onsubmit="submitForm(event)">
+		<button type="submit">Yes. Delete</button>
+	</form>
+</body>
+</html>

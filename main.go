@@ -26,6 +26,9 @@ func main() {
 	e.Use(middlewares.ErrorHandler)
 
 	e.Static("/", "statics")
+	e.GET("/form", service.RenderAddForm)
+	e.GET("/form/:id", service.RenderEditForm)
+	e.GET("/form/:id/delete", service.RenderDeleteForm)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", configs.PORT)))
 }

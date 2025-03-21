@@ -43,6 +43,9 @@ func (s *Service) Edit(id string, reqBody *specs.EditJSONRequestBody) (result *m
 
 	var updateEntry models.Hierarchy
 	jsonParse(reqBody, &updateEntry)
+	if *updateEntry.Upline == 0 {
+		updateEntry.Upline = nil
+	}
 
 	result, err = s.repository.Edit(uint(entityId), updateEntry)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {

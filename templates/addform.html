@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>New Employee Page</title>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const value = document.getElementById("value").value;
+            const upline = parseInt(document.getElementById("upline").value);
+
+            const response = await fetch("/hierarchy", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ value, upline })
+            });
+
+            const result = await response.json();
+            alert(JSON.stringify(result));
+        }
+    </script>
+</head>
+<body>
+	<h2>Submit Form</h2>
+	{{if .Error}}<p style="color: red;">{{.Error}}</p>{{end}}
+	<form onsubmit="submitForm(event)">
+		<label for="value">Value (required):</label>
+		<input type="text" id="value" name="value" value="{{.Value}}" required>
+		<br>
+		<label for="upline">Upline:</label>
+		<input type="text" id="upline" name="upline" value="{{.Upline}}">
+		<br>
+		<button type="submit">Submit</button>
+	</form>
+</body>
+</html>
