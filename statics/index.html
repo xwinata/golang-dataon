@@ -95,7 +95,7 @@
 
             const nameLink = document.createElement("a");
             nameLink.href = `/form/${node.ID}`;
-            nameLink.textContent = node.Value;
+            nameLink.textContent = node.Value+`(${node.ID})`;
             nameLink.classList.add("name-link");
 
             div.appendChild(arrow);
