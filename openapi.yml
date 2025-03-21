@@ -1,0 +1,158 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Golang DataOn API Service Example
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /hierarchy:
+    get:
+      tags:
+        - Hierarchy
+      operationId: GetAll
+      responses:
+        '200':
+          $ref: "#/components/responses/GetAllResponse"
+        '400':
+          $ref: "#/components/responses/Http400ErrorResponse"
+        '404':
+          $ref: "#/components/responses/Http404ErrorResponse"
+        '500':
+          $ref: "#/components/responses/Http500ErrorResponse"
+    post:
+      tags:
+        - Hierarchy
+      operationId: Add
+      requestBody:
+          $ref: "#/components/requestBodies/HierarchyRequest"
+      responses:
+        '200':
+          $ref: "#/components/responses/GetDetailsResponse"
+        '400':
+          $ref: "#/components/responses/Http400ErrorResponse"
+        '404':
+          $ref: "#/components/responses/Http404ErrorResponse"
+        '500':
+          $ref: "#/components/responses/Http500ErrorResponse"
+  /hierarchy/{id}:
+    get:
+      tags:
+        - Hierarchy
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      operationId: GetDetails
+      responses:
+        '200':
+          $ref: "#/components/responses/GetDetailsResponse"
+        '400':
+          $ref: "#/components/responses/Http400ErrorResponse"
+        '404':
+          $ref: "#/components/responses/Http404ErrorResponse"
+        '500':
+          $ref: "#/components/responses/Http500ErrorResponse"
+    patch:
+      tags:
+        - Hierarchy
+      operationId: Edit
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+          $ref: "#/components/requestBodies/HierarchyRequest"
+      responses:
+        '200':
+          $ref: "#/components/responses/GetDetailsResponse"
+        '400':
+          $ref: "#/components/responses/Http400ErrorResponse"
+        '404':
+          $ref: "#/components/responses/Http404ErrorResponse"
+        '500':
+          $ref: "#/components/responses/Http500ErrorResponse"
+    delete:
+      tags:
+        - Hierarchy
+      operationId: Delete
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        '200':
+          type: object
+          properties:
+            message: string
+        '400':
+          $ref: "#/components/responses/Http400ErrorResponse"
+        '404':
+          $ref: "#/components/responses/Http404ErrorResponse"
+        '500':
+          $ref: "#/components/responses/Http500ErrorResponse"
+
+components:
+  schemas:
+    ErrorSchema:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: an error occured
+  # examples:
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    HierarchyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              value:
+                type: string
+              upline:
+                type: number
+  responses:
+    GetDetailsResponse:
+      description: ""
+      content:
+        application/json:
+          schema:
+            type: object
+    GetAllResponse:
+      description: ""
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+    Http400ErrorResponse:
+      description: Bad Request Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorSchema"
+    Http401ErrorResponse:
+      description: Unauthorized Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorSchema"
+    Http404ErrorResponse:
+      description: Not Found Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorSchema"
+    Http500ErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorSchema"
